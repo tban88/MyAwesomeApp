@@ -1,0 +1,35 @@
+node ("agent_01") {
+  def image
+  def mvnHome = tool 'Maven3'
+     stage ('checkout') {
+        checkout([$class: 'GitSCM', branches: [[name: '*/master']], 
+doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: 
+[], userRemoteConfigs: [[credentialsId: '', url: 
+'https://github.com/tban88/MyAwesomeApp.git']]])      
+        }
+   
+    stage ('Build') {
+            sh 'mvn -f MyAwesomeApp/pom.xml clean install'           
+        }
+       
+       
+    stage ('Docker Build') {
+         // Build and push image with Jenkins' docker-plugin
+            withDockerRegistry([credentialsId: "dockerhub", url: 
+"https://index.docker.io/v1/"]) {
+            image = docker.build("jebc88/mywebapp", "MyAwesomeApp")
+            image.push()    
+            }
+        }
+
+      stage ('K8S Deploy') {
+       
+                kubernetesDeploy(
+                    configs: 'springboot-lb.yaml',
+                    kubeconfigId: 'K8S',
+                    enableConfigSubstitution: true
+                    )               
+        }
+    
+}
+
