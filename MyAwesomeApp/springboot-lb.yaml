@@ -14,13 +14,13 @@ spec:
     spec:
       containers:
       - name: my-angular-app
-        image: akdevopscoaching/mywebapp:latest
+        image: jebc88/mywebapp:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8085
 # service type loadbalancer
 ---
-apiVersion: v1
+apiVersion: v1_*
 kind: Service
 metadata:
   name: angular-app-svc
